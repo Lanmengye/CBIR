@@ -15,10 +15,10 @@ def train(model, trainData, testData, net_params, optimizer, record):
             train_label_onehot = Pre.getOnehotCode(train_label, net_params['num_of_classes'])
             if net_params['use_gpu']:
                 train_input, train_label = Variable(train_input.cuda()), Variable(train_label.cuda())
-                S = Pre.CalcSim(train_label_onehot, trainData['one_hots'])
+                S = Pre.calcSim(train_label_onehot, trainData['one_hots'])
             else:
                 train_input, train_label = Variable(train_input), Variable(train_label)
-                S = Pre.CalcSim(train_label_onehot, trainData['one_hots'])
+                S = Pre.calcSim(train_label_onehot, trainData['one_hots'])
             model.zero_grad()
             train_outputs = model(train_input)
             for i, ind in enumerate(batch_ind):

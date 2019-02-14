@@ -12,7 +12,8 @@ import numpy as np
 
 # 加载类别标签信息
 def loadLabels(filename, DATA_DIR):
-    path = os.path.join(DATA_DIR, filename)
+    path = DATA_DIR + filename
+    print(path)
     fp = open(path, 'r')
     labels = [x.strip() for x in fp]
     fp.close()

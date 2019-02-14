@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import DataUtils as DS
+import DataUtils.DataSetUtil as DS
 import Preparing as Pre
 from torch.utils.data import DataLoader
 
@@ -12,12 +12,12 @@ class MNIST_Helper():
 
     def getTrainDataAndTestData(self):
         ds = {
-            'train': DS.MNIST_Util(self.src + 'train/', 'train_img.txt', 'train_label.txt'),
-            'test': DS.MNIST_Util(self.src + 'test/', 'test_img.txt', 'test_label.txt')
+            'train': DS.MNIST_DS(self.src + '/train', 'train_img.txt', 'train_label.txt'),
+            'test': DS.MNIST_DS(self.src + '/test', 'test_img.txt', 'test_label.txt')
         }
         labels = {
-            'train': Pre.loadLabels('train_label.txt', self.src + 'train/'),
-            'test': Pre.loadLabels('test_label.txt', self.src + 'test/'),
+            'train': Pre.loadLabels('/train_label.txt', self.src + '/train'),
+            'test': Pre.loadLabels('/test_label.txt', self.src + '/test'),
         }
         trainData = {
             'num': len(ds['train']),

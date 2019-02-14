@@ -64,6 +64,8 @@ class cnn_model(nn.Module):
 def getResnetModel(bits):
     model_ft = models.resnet50(pretrained=True)
     num_ftrs = model_ft.fc.in_features
+    # print(num_ftrs)
+    # print(bits)
     model_ft.fc = nn.Linear(num_ftrs, bits)
     return model_ft
 
@@ -71,6 +73,11 @@ def getResnetModel(bits):
 if __name__=="__main__":
     alexnet = models.alexnet(pretrained=True)
     print(alexnet)
+
+    resnet = getResnetModel(12)
+    print(resnet)
+
+    print(torch.cuda.is_available())
     # vgg11_classifier = cnn_model(vgg11, 'vgg11', 1000)
     #
     # vgg11 = vgg11.cuda()
