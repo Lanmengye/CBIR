@@ -3,6 +3,7 @@ import net_train
 from _datetime import datetime
 import pickle
 import os
+from DataUtils import MNIST_Util
 
 if __name__ == '__main__':
     net_params = {
@@ -17,12 +18,13 @@ if __name__ == '__main__':
         'eta': 50
     }
 
+    srcPath = os.path.abspath('Data/mnist/')
 
-    srcPath = os.path.abspath('../Data/cifar-10/')
+    dataHelper = MNIST_Util.MNIST_Helper(srcPath, net_params['batch_size'], net_params['num_of_classes'])
 
     for bit in net_params['bits']:
         filename = 'log/' + str(net_params['bit']) + 'bit' + datetime.now().strftime("%y-%m-%d-%H-%M-%S") + '.pkl'
-        result = net_train.deephash(net_params, srcPath)
+        result = net_train.deephash(net_params, dataHelper)
         fp = open(result['filename'], 'wb')
         pickle.dump(result, fp)
         fp.close()

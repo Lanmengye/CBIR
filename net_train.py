@@ -1,53 +1,12 @@
 import Preparing as Pre
-from DataUtils import DataSetUtil as DS
-from torch.utils.data import DataLoader
 import torch.optim as optim
 import torch
 from torch.autograd import Variable
 import CalcHammingRanking as CalcHR
 
 
-def getTrainDataAndTestData(srcPath, net_params):
-    ds = {
-        'train': DS.CIFAR_10_DS(srcPath + 'train/', 'train_img.txt', 'train_label.txt'),
-        'test': DS.CIFAR_10_DS(srcPath + 'test/', 'test_img.txt', 'test_label.txt')
-    }
-    labels = {
-        'train': Pre.loadLabels('train_label.txt', srcPath + 'train/'),
-        'test': Pre.loadLabels('test_label.txt', srcPath + 'test/'),
-    }
-    trainData = {
-        'num': len(ds['train']),
-        'dataloader': DataLoader(ds['train'], batch_size=net_params['batch_size'], shuffle=True, num_workers=4),
-        'label': labels['train'],
-        'one_hots': Pre.getOnehotCode(labels['train'], net_params['num_of_classes'])
-    }
-
-    testData = {
-        'num': len(ds['test']),
-        'dataloader': DataLoader(ds['test'], batch_size=net_params['batch_size'], shuffle=True, num_workers=4),
-        'label': labels['test'],
-        'one_hots': Pre.getOnehotCode(labels['test'], net_params['num_of_classes'])
-    }
-
-    return trainData, testData
-
-
-def getDataBaseData(srcPath, net_params):
-    ds = DS.CIFAR_10_DS(srcPath + 'database/', 'database_img.txt', 'database_label.txt')
-    labels = Pre.loadLabels('database_label.txt', srcPath + 'database/'),
-    databaseData = {
-        'num': len(ds),
-        'dataloader': DataLoader(ds, batch_size=net_params['batch_size'], shuffle=True, num_workers=4),
-        'label': labels,
-        'one_hots': Pre.getOnehotCode(labels, net_params['num_of_classes'])
-    }
-    return databaseData
-
-
 def train(model, trainData, testData, net_params, optimizer, record):
     B, U = torch.zeros(trainData['num'], net_params['bit']), torch.zeros(trainData['num'], net_params['bit'])
-    train_S = Pre.CalcSim(trainData['one_hots'], trainData['one_hots'])
     for epoch in range(net_params['epochs']):
         epoch_loss = 0.0
         for iter, traindata in enumerate(trainData['dataloader'], 0):
@@ -99,7 +58,7 @@ def train(model, trainData, testData, net_params, optimizer, record):
               end='\n')
 
 
-def deephash(net_params, srcPath):
+def deephash(net_params, dataHelper):
     model = Pre.get_cnn_model(net_params['model_name'], net_params['bit'])
     optimizer = optim.SGD(model.parameters(), lr=net_params['learning_rate'], weight_decay=net_params['weight_decay'])
     record = {
@@ -107,8 +66,12 @@ def deephash(net_params, srcPath):
         'map': []
     }
 
-    trainData, testData = getTrainDataAndTestData(srcPath, net_params)
-    dataBaseData = getDataBaseData(srcPath, net_params)
+    trainData, testData = dataHelper.getTrainDataAndTestData()
+
+    if hasattr(dataHelper, 'getDataBaseData'):
+        dataBaseData = dataHelper.getDataBaseData()
+    else:
+        dataBaseData = trainData
 
     # train and test
     train(model, trainData, testData, net_params, optimizer, record)
